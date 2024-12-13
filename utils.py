@@ -1,4 +1,5 @@
 from sklearn.metrics import accuracy_score, recall_score, precision_score
+import pandas as pd
 
 
 def evaluate(classifier, X, y, verbose = True, threshold = 0.5):
@@ -28,3 +29,11 @@ def remove_outliners(df, features):
         IQR = Q3 - Q1
         temp_df = temp_df[(temp_df[feature] >= (Q1 - 1.5 * IQR)) & (temp_df[feature] <= (Q3 + 1.5 * IQR))]
     return temp_df
+
+def compare(models: tuple[str, any], X, y, threshold):
+    df = pd.DataFrame(columns=['Model','Accuracy', 'F1', 'Precision', 'Recall'])
+    for name, clf in models:
+        accuracy, f1, precision, recall = evaluate(clf, X, y, verbose=False, threshold=threshold)
+        new_row = {"Model": name,'Accuracy': accuracy, 'F1': f1, 'Precision': precision, 'Recall': recall}
+        df.loc[len(df)] = new_row
+    return df

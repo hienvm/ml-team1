@@ -33,7 +33,8 @@ class TreeNode():
         
         if self.split.col_idx is None:
             # nếu không tìm được split nào có gain > 0
-            # tính giá trị tối ưu cho lá - Equation 5 https://arxiv.org/pdf/1603.02754
+            # tính giá trị tối ưu cho lá - Equation 5 
+            # https://arxiv.org/pdf/1603.02754
             self.leaf_optimal_weight = - g[row_idxs].sum() / (h[row_idxs].sum() + l2_lambda)
             return
         
@@ -50,7 +51,7 @@ class TreeNode():
         # chia các sample >= threshold sang con phải
         self.right = TreeNode()
         self.right.fit(
-            X, g, h, 
+            X, g, h,
             row_idxs[(split_col >= self.split.threshold).nonzero()], 
             remaining_depth - 1, 
             l2_lambda,)

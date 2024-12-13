@@ -47,15 +47,13 @@ class CustomXGBoost(ClassifierMixin, BaseEstimator):
             g = gradient(y, y_pred)
             h = hessian(y, y_pred)
             row_idxs = np.random.choice(
-                X.shape[0], int(self.params['row_subsample_ratio']*X.shape[0]))
-            
+                X.shape[0], int(self.row_subsample_ratio*X.shape[0]))
             tree = TreeNode()
             tree.fit(
                 X, g, h, 
                 row_idxs,
                 self.max_depth,
                 self.reg_lambda,)
-            
             y_pred += self.lr * tree.predict(X)
             # print(f'Round {i}/{self.n_estimators}. Loss: {loss(y, y_pred)}')
             self.estimators.append(tree)
@@ -90,7 +88,8 @@ def sigmoid(x):
 # negative log loss
 def loss(y, y_pred): 
     y_pred = sigmoid(y_pred)
-    return np.mean(- y * np.log(y_pred) - (1 - y) * np.log(1 - y_pred))
+    return np.mean(- y * np.log(y_pred) 
+            - (1 - y) * np.log(1 - y_pred))
     
 def gradient(y, y_pred):
     return(sigmoid(y_pred) - y)
