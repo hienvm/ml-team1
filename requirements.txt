@@ -4,3 +4,6 @@ lightgbm
 xgboost
 matplotlib
 ipykernel
+imbalanced-learn
+scikit-optimize
+missingno

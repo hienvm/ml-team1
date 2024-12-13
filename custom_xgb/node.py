@@ -27,27 +27,33 @@ class TreeNode():
             self.leaf_optimal_weight = - g[row_idxs].sum() / (h[row_idxs].sum() + l2_lambda)
             return
         
+        # tìm split tốt nhất
         self.split = find_split_exact_greedy(
             X[row_idxs,:], g[row_idxs], h[row_idxs], l2_lambda)
+        
         if self.split.col_idx is None:
+            # nếu không tìm được split nào có gain > 0
             # tính giá trị tối ưu cho lá - Equation 5 https://arxiv.org/pdf/1603.02754
             self.leaf_optimal_weight = - g[row_idxs].sum() / (h[row_idxs].sum() + l2_lambda)
             return
         
         split_col = X[row_idxs, self.split.col_idx]
         
-        left_idxs = np.nonzero(split_col < self.split.threshold)[0]
-        right_idxs = np.nonzero(split_col >= self.split.threshold)[0]
-        
+        # chia các sample < threshold sang con trái
         self.left = TreeNode()
         self.left.fit(
             X, g, h, 
-            row_idxs[left_idxs], remaining_depth - 1, l2_lambda)
+            row_idxs[(split_col < self.split.threshold).nonzero()], 
+            remaining_depth - 1,
+            l2_lambda,)
         
+        # chia các sample >= threshold sang con phải
         self.right = TreeNode()
         self.right.fit(
             X, g, h, 
-            row_idxs[right_idxs], remaining_depth - 1, l2_lambda)
+            row_idxs[(split_col >= self.split.threshold).nonzero()], 
+            remaining_depth - 1, 
+            l2_lambda,)
         
                 
                 

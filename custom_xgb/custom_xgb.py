@@ -21,6 +21,7 @@ class CustomXGBoost(ClassifierMixin, BaseEstimator):
         }
         
         self.classes_ = np.array([0, 1])
+        self.estimators = []
         
     def set_params(self, **params):
         super().set_params(**params)
@@ -36,8 +37,8 @@ class CustomXGBoost(ClassifierMixin, BaseEstimator):
         return self
                 
     def fit(self, X, y):
-        y_pred = np.zeros(shape=y.shape)
         self.estimators = []
+        y_pred = np.zeros(y.shape)
         if not isinstance(X, np.ndarray):
             X = X.to_numpy()
         if not isinstance(y, np.ndarray):
@@ -58,11 +59,19 @@ class CustomXGBoost(ClassifierMixin, BaseEstimator):
             y_pred += self.lr * tree.predict(X)
             # print(f'Round {i}/{self.n_estimators}. Loss: {loss(y, y_pred)}')
             self.estimators.append(tree)
-        self.estimator_ = self
+        self.estimator = self
         return self
             
     def predict(self, X):
         return sigmoid(self.lr * np.sum([tree.predict(X) for tree in self.estimators], axis=0)) >= 0.5
+    
+    def predict_proba(self, X):
+        pos_prob = sigmoid(self.lr * np.sum([tree.predict(X) for tree in self.estimators], axis=0)).reshape(-1,1)
+        return np.hstack([
+            1-pos_prob,
+            pos_prob,
+        ])
+        
         
 # def loss(y, y_pred): 
 #     return np.mean((y - y_pred)**2)
